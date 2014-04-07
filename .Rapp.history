@@ -1,0 +1,77 @@
+benjer = read.csv("BenAndJerry.csv")
+benjer = read.csv("BenAndJerry.csv")
+benjer = read.csv("BenAndJerry.csv")
+par(mfrow=c(1,3))#
+  boxplot(priceper1 ~ race, data=benjer, main = "Price v Race", xlab = "Race", ylab = "Price")  ##shows greatest spread among whites#
+  boxplot(priceper1 ~ hispanic_origin, data=benjer, main = "Price v Hisp Orig", xlab = "Hisp Orig", ylab = "Price") ##shows greatest non-hispanics#
+  boxplot(priceper1 ~ region, data=benjer, main = "Price v Region", xlab = "Region", ylab = "Price")
+par(mfrow=c(1,3))
+summary(priceper1)
+priceper1 = (benjer$price_paid_deal + benjer$price_paid_non_deal)/benjer$quantity#
+lpriceper1 <- log(1+priceper1)
+par(mfrow=c(1,3))#
+  boxplot(priceper1 ~ race, data=benjer, main = "Price v Race", xlab = "Race", ylab = "Price")
+boxplot(priceper1 ~ hispanic_origin, data=benjer, main = "Price v Hisp Orig", xlab = "Hisp Orig", ylab = "Price")
+boxplot(priceper1 ~ region, data=benjer, main = "Price v Region", xlab = "Region", ylab = "Price")
+par(mfrow=c(1,2))#
+  boxplot(priceper1 ~ household_size, data=benjer, main = "Price v Household Size", xlab = "Household Size", ylab = "Price")
+boxplot(priceper1 ~ age_and_presence_of_children, data=benjer, main = "Price v Age + Presence of Children", xlab = "Age + Presence of Children", ylab = "Price")
+par(mfrow=c(2,2))#
+  boxplot(priceper1 ~ male_head_employment, data=benjer, main = "Price v Male Head Empl.", xlab = "Male Head Empl.", ylab = "Price")
+boxplot(priceper1 ~ female_head_employment, data=benjer, main = "Price v Female Head Empl.", xlab = "Female Head Empl.", ylab = "Price")
+par(mfrow=c(1,1))#
+  boxplot(priceper1 ~ flavor_descr, data=benjer, main = "Price v Flavor", xlab = "Flavor", ylab = "Price")
+par(mfrow=c(1,2))#
+  boxplot(priceper1 ~ household_size, data=benjer, main = "Price v Household Size", xlab = "Household Size", ylab = "Price")
+x <- benjer[,c("flavor_descr","size1_descr",#
+	"household_income","household_size")]#
+x$flavor_descr <- relevel(x$flavor_descr,"VAN")#
+x$usecoup = factor(benjer$coupon_value>0)#
+x$couponper1 <- benjer$coupon_value/benjer$quantity#
+x$region <- factor(benjer$region, #
+	levels=1:4, labels=c("East","Central","South","West"))#
+	x$married <- factor(benjer$marital_status==1)#
+x$race <- factor(benjer$race,#
+	levels=1:4,labels=c("white","black","asian","other"))#
+x$hispanic_origin <- benjer$hispanic_origin==1#
+x$microwave <- benjer$kitchen_appliances %in% c(1,4,5,7)#
+x$dishwasher <- benjer$kitchen_appliances %in% c(2,4,6,7)#
+x$sfh <- benjer$type_of_residence==1#
+x$internet <- benjer$household_internet_connection==1#
+x$tvcable <- benjer$tv_items>1
+fit <- glm(lpriceper1~.,data=x)
+summary(glm)
+summary(fit)
+x$tvcable <- NULL
+summary(x)
+x$tvcable <- NULL#
+x$internet <- NULL#
+x$microwave <- NULL#
+x$dishwasher <- NULL
+fit <- glm(lpriceper1~.,data=x)
+summary(fit)
+source("fdr.R")
+source("fdr.R")
+cutoff <- fdr_cut(pvals, 0.01)
+fdr_cut <- function(pvals, q){#
+  pvals <- pvals[!is.na(pvals)]#
+  n <- length(pvals)#
+  j <- rank(pvals, ties.method="min")#
+  sig <- pvals <= q*j/n#
+  sig[pvals<max(pvals[sig])] <- TRUE#
+  o <- order(pvals)#
+  plot(pvals[o], log="xy", col=c("grey60","red")[factor(sig[o])], pch=20, #
+       ylab="p-values", xlab="tests ordered by p-value", main = paste('FDR =',q))#
+  lines(1:n, q*(1:n)/n)#
+  return(max(pvals[sig]))#
+}
+cutoff <- fdr_cut(pvals, 0.01)
+fit <- glm(lpriceper1~.,data=x)
+full <- fit#
+step(full, direction = "backward", trace=FALSE, steps = 5)
+pvals <- summary(fit)$coef[-1,4] #
+pvals
+source("fdr.R")
+cutoff <- fdr_cut(pvals, 0.01)
+cutoff <- fdr_cut(pvals, 0.001)
+cutoff <- fdr_cut(pvals, 0.0001)

@@ -63,6 +63,22 @@ x$tvcable <- benjer$tv_items>1
 fit <- glm(lpriceper1~.,data=x)
 ##problem with how it exists now is that the flavor description should be predicting all of the price. that is why household income coefficient is really small, but still significant - because all of the variation is explained in the price description. if were to improve, would drop several of the variables from x since what really interested in isn't what price peoplel pay based on the flavor (we set that), but rather what are predictors for how much different groups will pay. or at the very least take away things that we would assume to just be proxies for income, like microwave, cable, dishwasher, and internet
 
+
+##dropping other variables that are proxies for wealth. makes no impact
+x$tvcable <- NULL
+x$internet <- NULL
+x$microwave <- NULL
+x$dishwasher <- NULL
+fit <- glm(lpriceper1~.,data=x)
+summary(fit)
+
+##add the dropped variables back in
+x$tvcable <- benjer$tv_items>1
+x$internet <- benjer$household_internet_connection==1
+x$microwave <- benjer$kitchen_appliances %in% c(1,4,5,7)
+x$dishwasher <- benjer$kitchen_appliances %in% c(2,4,6,7)
+
+
 full <- fit
 step(full, direction = "backward", trace=FALSE, steps = 5)
 
